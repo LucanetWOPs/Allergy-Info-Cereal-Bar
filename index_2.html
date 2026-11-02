@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Berlin Snack Allergens</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+/* Layout: single mobile-first column, filter bar on top, product rows grouped by Snacks / Muesli bar */
+:root{
+  --bg:#f5f7f6; --surface:#ffffff; --fg:#17201d; --muted:#5a6762; --line:#dde4e1;
+  --accent:#1f6f5c; --accent-soft:#e2f0eb;
+  --bad:#b3261e; --bad-soft:#fbe7e5; --warn:#8a5a00; --warn-soft:#fdf1d8; --ok:#1f6f5c; --ok-soft:#e2f0eb;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111715; --surface:#19211e; --fg:#e8eeeb; --muted:#9aa8a2; --line:#2b3632;
+  --accent:#6fcfb2; --accent-soft:#1d3a31;
+  --bad:#ff9a90; --bad-soft:#3d1f1c; --warn:#f2c46b; --warn-soft:#3a2e14; --ok:#6fcfb2; --ok-soft:#1d3a31; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111715; --surface:#19211e; --fg:#e8eeeb; --muted:#9aa8a2; --line:#2b3632;
+  --accent:#6fcfb2; --accent-soft:#1d3a31;
+  --bad:#ff9a90; --bad-soft:#3d1f1c; --warn:#f2c46b; --warn-soft:#3a2e14; --ok:#6fcfb2; --ok-soft:#1d3a31; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:28px}
+h1,h2{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
+h1{font-size:clamp(1.9rem,6vw,2.6rem);font-weight:800}
+h2{font-size:1.35rem;font-weight:600;display:flex;align-items:baseline;gap:10px}
+h2 small{font-family:var(--body);font-size:.85rem;color:var(--muted);font-weight:400}
+.eyebrow{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0 0 8px}
+.lede{color:var(--muted);margin:10px 0 0;max-width:62ch}
+.notice{background:var(--warn-soft);color:var(--fg);border-radius:10px;padding:12px 14px;font-size:.95rem}
+.notice strong{color:var(--warn)}
+.filter{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.filter p{margin:0;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:.92rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:6px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.chip:focus-visible,.reset:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;font-size:.9rem;color:var(--muted)}
+.reset{font:inherit;background:none;border:0;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0}
+.legend{display:flex;flex-wrap:wrap;gap:12px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+section{display:flex;flex-direction:column;gap:12px}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.item.is-bad{border-left:4px solid var(--bad)}
+.item.is-warn{border-left:4px solid var(--warn)}
+.item.is-ok{border-left:4px solid var(--ok)}
+.top{display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
+.name{font-weight:700;font-size:1.05rem;margin:0;display:flex;gap:10px;align-items:baseline}
+.num{flex:none;font-family:var(--display);font-weight:800;font-size:.95rem;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:1px 7px;font-variant-numeric:tabular-nums}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:5px}
+.tabs button{font:inherit;font-weight:700;border:0;border-radius:8px;padding:10px 8px;background:transparent;color:var(--fg);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.2}
+.tabs button span{font-weight:400;font-size:.8rem;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--surface)}
+.tabs button[aria-selected="true"] span{color:var(--surface);opacity:.85}
+.tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.badge{flex:none;font-size:.78rem;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.b-bad{background:var(--bad-soft);color:var(--bad)}
+.b-warn{background:var(--warn-soft);color:var(--warn)}
+.b-ok{background:var(--ok-soft);color:var(--ok)}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.95rem}
+dt{color:var(--muted)}
+dd{margin:0;min-width:0}
+details{font-size:.88rem;color:var(--muted)}
+summary{cursor:pointer;color:var(--accent)}
+details p{margin:6px 0 0}
+.none{color:var(--muted)}
+footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:6px}
+@media (max-width:420px){dl{grid-template-columns:1fr}dt{margin-top:4px}}
+
+*{box-sizing:border-box}
+body{margin:0}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Lucanet Berlin · Cereal Power Station &amp; snacks</p>
+    <h1>What's in our snacks?</h1>
+    <p class="lede">Ingredients and allergens for everything at the Berlin office Cereal Power Station and snack shelf. The number matches the label on each jar. Pick the allergens you avoid to see what's safe for you.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Choose a section">
+    <button type="button" role="tab" id="tab-cereal" data-view="cereal">Cereal Power Station <span>C1–C13</span></button>
+    <button type="button" role="tab" id="tab-snacks" data-view="snacks">Snacks <span>S1–S12</span></button>
+  </div>
+
+  <div class="notice"><strong>Please check the packaging.</strong> This page is based on the supplier's product information. Recipes can change, and "may contain" means traces are possible. If you have a severe allergy, always check the original label.</div>
+
+  <div class="filter" role="group" aria-labelledby="flabel">
+    <p id="flabel">I avoid:</p>
+    <div class="chips" id="chips"></div>
+    <div class="row">
+      <div class="legend">
+        <span><i class="dot" style="background:var(--bad)"></i>Contains</span>
+        <span><i class="dot" style="background:var(--warn)"></i>May contain traces</span>
+        <span><i class="dot" style="background:var(--ok)"></i>Free from your selection</span>
+      </div>
+      <button class="reset" id="reset" type="button" hidden>Clear selection</button>
+    </div>
+  </div>
+
+  <section id="sec-cereal" aria-labelledby="h-muesli">
+    <h2 id="h-muesli">Cereal Power Station <small id="c-muesli"></small></h2>
+    <div class="list" id="muesli"></div>
+  </section>
+
+  <section id="sec-snacks" aria-labelledby="h-snacks">
+    <h2 id="h-snacks">Snacks <small id="c-snacks"></small></h2>
+    <div class="list" id="snacks"></div>
+  </section>
+
+  <footer>
+    <span>Source: supplier product information (KoRo). Last updated November 2026.</span>
+    <span>Questions or a product missing? Please contact the Workplace team.</span>
+  </footer>
+</div>
+
+<script>
+const A={gluten:"Gluten",peanuts:"Peanuts",treenuts:"Tree nuts",milk:"Milk / lactose",soy:"Soy",sesame:"Sesame",mustard:"Mustard",sulphites:"Sulphites",lupin:"Lupin"};
+const P=(name,ingr,c,ck,m,mk)=>({name,ingr,c,ck,m,mk});
+const MUESLI=[
+ P("Organic chia seeds","100% chia","","","Gluten, soy, tree nuts, sesame","gluten soy treenuts sesame"),
+ P("Gluten-free organic fine oats","100% gluten-free wholegrain oat flakes from organic agriculture","Oats (certified gluten-free)","","Soy, tree nuts, mustard, sesame, lupin","soy treenuts mustard sesame lupin"),
+ P("Soya protein crispies with cocoa, 58% protein","Soy protein, rice flour, cocoa powder, sugar, salt","Soy","soy","",""),
+ P("Puffed organic five-grain mix","20% puffed brown rice, 20% puffed spelt, 20% puffed millet, 20% puffed quinoa, 20% puffed emmer","Gluten (wheat: spelt and emmer)","gluten","",""),
+ P("Organic cornflakes with no added sugar","100% corn","","","",""),
+ P("Chopped organic dates","95% chopped dates, 5% rice flour","","","",""),
+ P("Roasted organic coconut chips","100% coconut","","","Gluten, soy, sesame, almonds, hazelnuts, walnuts, cashews, pistachios","gluten soy sesame treenuts"),
+ P("Organic white drops with coconut blossom sugar","42% coconut blossom sugar, 40% cocoa butter, coconut cream, almond protein, coconut flour, emulsifier: sunflower lecithin","Almonds","treenuts","Peanuts, other tree nuts, sesame","peanuts treenuts sesame"),
+ P("Freeze-dried berry mix","35% cranberries, 35% strawberries, 30% blackberries","","","Gluten, peanuts, soy, milk/lactose, tree nuts, sesame, sulphur dioxide","gluten peanuts soy milk treenuts sesame sulphites"),
+ P("Organic sunflower seeds","100% sunflower seeds","","","Gluten, sesame","gluten sesame"),
+ P("Cashew pieces","100% cashews","Cashews","treenuts","Gluten, soy, other tree nuts, sesame","gluten soy treenuts sesame"),
+ P("Organic chocolate granola","Coarse oat flakes, agave syrup, fine oat flakes, sunflower oil, 5% cocoa powder, 4.5% dark chocolate (cocoa mass, raw cane sugar, cocoa butter), 4% chocolate crisps (rice, wheat flour, sugar, 4% defatted cocoa powder, barley malt flour, sea salt), 2% cocoa nibs, Mediterranean salt","Gluten (oats, wheat, barley)","gluten","Soy, tree nuts, sesame","soy treenuts sesame"),
+ P("Crunchy organic granola with nuts","Oat flakes, agave syrup, sunflower oil, cashews, almonds, hazelnuts and salt","Gluten (oats), cashews, almonds, hazelnuts","gluten treenuts","Soya, other tree nuts, sesame","soy treenuts sesame")
+];
+const SNACKS=[
+ P("Freeze-dried raspberries in dark chocolate","Dark chocolate coating (sugar, cocoa mass, cocoa butter, emulsifier: soya lecithin), freeze-dried raspberries, glazing agents","Soy","soy","Gluten, peanuts, milk (lactose), tree nuts","gluten peanuts milk treenuts"),
+ P("Freeze-dried strawberries in milk chocolate","Milk chocolate coating (sugar, cocoa butter, whole milk powder, cocoa mass, emulsifier: soya lecithin), freeze-dried strawberries, glazing agents","Milk, soy","milk soy","Gluten, peanuts, tree nuts","gluten peanuts treenuts"),
+ P("Pretzel and nut mix with chocolate and caramel","39% peanuts; 38% white chocolate with caramel (sugar, cocoa butter, whole milk powder, caramel powder [sucrose, skimmed milk powder], skimmed milk powder, cocoa mass, emulsifier E322, natural flavour, paprika extract, salt); wheat flour; rice powder; salt; vegetable oils (rapeseed, coconut); 0.5% wheat malt; 0.23% dark chocolate (cocoa mass, sugar, cocoa butter, anhydrous milk fat, soya lecithin, natural vanilla flavour); yeast; sugar; dextrose; modified tapioca starch; glucose syrup; emulsifiers E322, E414, E471; acidity regulator E524; glazing agent E904","Gluten (wheat), peanuts, milk, soya","gluten peanuts milk soy","Tree nuts, sesame","treenuts sesame"),
+ P("Raspberry crispy balls with white chocolate","78% white chocolate (sugar, cocoa butter, whole milk powder, whey powder [milk], natural vanilla flavour, soya lecithin); 20% malt balls (rice flour, sugar, 0.8% wheat malt, dextrose, lecithins); 0.7% freeze-dried raspberry powder; glucose syrup; glazing agents: gum arabic, shellac; dextrin","Milk, soya, gluten (wheat)","milk soy gluten","Peanuts, tree nuts","peanuts treenuts"),
+ P("Snack mix","25% mulberries, 25% edamame beans (soya beans), 24.5% almonds, sugar, 10% cranberries, sunflower oil, salt, raising agent: sodium carbonates","Soya, almonds","soy treenuts","Peanuts, other tree nuts, sesame","peanuts treenuts sesame"),
+ P("Chocolate nut mix sweet and salty","72% peanuts, 15% dark chocolate (sugar, cocoa mass, cocoa butter, soya lecithin), 6.5% sugar, 4.5% cashews, sunflower oil, 0.6% sea salt, 0.4% salt, glazing agent: gum arabic","Peanuts, cashews, soya","peanuts treenuts soy","Gluten, milk/lactose, other tree nuts, sesame","gluten milk treenuts sesame"),
+ P("Roasted salted corn kernels","83% corn, sunflower oil, 2% salt","","","",""),
+ P("Organic pizza crackers","Wheat flour, sunflower oil, 3% tomato powder, sea salt, extra virgin olive oil, wheat malt flour, brewer's yeast, 0.5% oregano","Gluten (wheat)","gluten","Milk/lactose, mustard, sesame","milk mustard sesame"),
+ P("Roasted and salted bean and pea mix","20% edamame, 20% black soybeans, 19% soybeans, 13% green peas, 8% broad beans, sunflower oil, wheat flour, corn starch, sugar, 1% salt, maltodextrin, soya sauce (water, soya beans, wheat, salt), raising agents: sodium hydrogen carbonate, ammonium hydrogen carbonate","Soy, gluten (wheat)","soy gluten","Peanuts, milk/lactose, tree nuts, sesame","peanuts milk treenuts sesame"),
+ P("Superior rice cracker mix","43% rice, modified starch (corn, tapioca), 12% peanuts, wheat flour, sugar, glucose syrup, soya sauce (water, soya beans, wheat, salt), maltodextrin, sesame seeds, salt, seaweed, potato starch, soya sauce powder (fermented soya sauce, water, soya bean, wheat, maltodextrin, salt), chilli powder, yeast extract, colours: plain caramel, paprika extract, E141","Peanuts, gluten (wheat), soy, sesame","peanuts gluten soy sesame","Milk/lactose, tree nuts","milk treenuts"),
+ P("Freeze-dried banana slices","100% banana","","","Gluten, soy, milk/lactose, tree nuts","gluten soy milk treenuts"),
+ P("Freeze-dried mango pieces","100% mango","","","Gluten, peanuts, soy, milk/lactose, tree nuts, sesame","gluten peanuts soy milk treenuts sesame")
+];
+let sel=new Set();
+let view=location.hash==="#snacks"?"snacks":"cereal";
+try{(JSON.parse(localStorage.getItem("avoid")||"[]")).forEach(k=>A[k]&&sel.add(k))}catch(e){}
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const chips=document.getElementById("chips");
+Object.entries(A).forEach(([k,l])=>{const b=document.createElement("button");b.type="button";b.className="chip";b.id="chip-"+k;b.textContent=l;b.dataset.k=k;b.onclick=()=>{sel.has(k)?sel.delete(k):sel.add(k);save();render()};chips.appendChild(b)});
+document.getElementById("reset").onclick=()=>{sel.clear();save();render()};
+function save(){try{localStorage.setItem("avoid",JSON.stringify([...sel]))}catch(e){}}
+function status(p){
+  if(!sel.size)return null;
+  const ck=p.ck.split(" ").filter(Boolean),mk=p.mk.split(" ").filter(Boolean);
+  const hitC=[...sel].filter(k=>ck.includes(k)),hitM=[...sel].filter(k=>mk.includes(k)&&!ck.includes(k));
+  if(hitC.length)return["bad","Contains "+hitC.map(k=>A[k].toLowerCase()).join(", ")];
+  if(hitM.length)return["warn","May contain "+hitM.map(k=>A[k].toLowerCase()).join(", ")];
+  return["ok","Free from your selection"];
+}
+function list(id,data,pre){
+  const el=document.getElementById(id);let ok=0;
+  el.innerHTML=data.map((p,i)=>{const s=status(p);if(s&&s[0]==="ok")ok++;
+    return `<article class="item${s?" is-"+s[0]:""}"><div class="top"><p class="name"><span class="num">${pre}${i+1}</span><span>${esc(p.name)}</span></p>${s?`<span class="badge b-${s[0]}">${esc(s[1])}</span>`:""}</div>
+    <dl><dt>Contains</dt><dd>${p.c?esc(p.c):'<span class="none">No allergens listed</span>'}</dd>
+    <dt>May contain</dt><dd>${p.m?esc(p.m):'<span class="none">No trace warning listed</span>'}</dd></dl>
+    <details><summary>Ingredients</summary><p>${esc(p.ingr)}</p></details></article>`}).join("");
+  document.getElementById("c-"+id).textContent=sel.size?`${ok} of ${data.length} free from your selection`:`${data.length} products`;
+}
+function render(){
+  document.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",sel.has(b.dataset.k)));
+  document.getElementById("reset").hidden=!sel.size;
+  list("muesli",MUESLI,"C");list("snacks",SNACKS,"S");
+  ["cereal","snacks"].forEach(v=>{document.getElementById("sec-"+v).hidden=v!==view;document.getElementById("tab-"+v).setAttribute("aria-selected",v===view)});
+}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{view=b.dataset.view;try{history.replaceState(null,"","#"+view)}catch(e){location.hash=view}render()});
+window.addEventListener("hashchange",()=>{view=location.hash==="#snacks"?"snacks":"cereal";render()});
+render();
+</script>
+</body>
+</html>
